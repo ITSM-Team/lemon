@@ -1,0 +1,10 @@
+[{
+		"id":	"1",
+		"code": "portal",
+		"name": "首页",
+		"url": "/portal/index.do",
+		"type": "index",
+		"display": "true",
+		"perm": "portal",
+		"priority": 10000
+}]
