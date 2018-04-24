@@ -23,21 +23,6 @@
 							<div data-id="${item.id}" class="portlet" data-order="${item.rowIndex}">
 							<div data-url="${tenantPrefix}${item.portalWidget.url}" class="panel panel-default" id="panel${item.id}" data-id="${item.id}">
 								<div class="panel-heading">
-								<!-- 隐藏面板添加编辑入口 -->
-								<%-- 	<div class="panel-actions">
-										<button class="btn btn-sm refresh-panel">
-											<i class="glyphicon glyphicon-refresh"></i>
-										</button>
-										<div class="dropdown">
-											<button data-toggle="dropdown" class="btn btn-sm" role="button">
-												<span class="caret"></span>
-											</button>
-											<ul aria-labelledby="dropdownMenu1" role="menu" class="dropdown-menu">
-												<li><a href="javascript:void(0);updateWidget(${item.id}, ${item.portalWidget.id}, '${item.name}')"><i class="glyphicon glyphicon-pencil"></i> 编辑</a></li>
-												<li><a class="remove-panel" href="#"><i class="glyphicon glyphicon-remove"></i> 移除</a></li>
-											</ul>
-										</div>
-									</div> --%>
 									<i class="glyphicon glyphicon-list"></i> ${item.name}
 								</div>
 								<div class="panel-body">
