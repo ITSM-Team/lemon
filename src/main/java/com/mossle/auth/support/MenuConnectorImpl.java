@@ -3,13 +3,19 @@ package com.mossle.auth.support;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.persistence.Query;
+
 import com.mossle.api.menu.MenuConnector;
 import com.mossle.api.menu.MenuDTO;
 import com.mossle.api.tenant.TenantHolder;
 import com.mossle.api.userauth.UserAuthConnector;
 import com.mossle.auth.persistence.domain.AuthUserRole;
 import com.mossle.auth.persistence.domain.Menu;
+import com.mossle.auth.persistence.domain.UserStatus;
 import com.mossle.auth.persistence.manager.MenuManager;
+
+import org.activiti.engine.impl.cmd.GetHistoricIdentityLinksForTaskCmd;
+import org.hibernate.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +54,9 @@ public class MenuConnectorImpl implements MenuConnector {
 	@SuppressWarnings("unchecked")
 	public List<MenuDTO> findMainMenu(String userId) {
 		List<MenuDTO> menuDtos = this.menuCache.findEntries();
-		String sql = "from AuthUserRole where userStatusId=? and roleId=1";
-		List<AuthUserRole> authUserRole = menuManager.find(sql, Long.parseLong(userId));
+		List<UserStatus> userStatus = menuManager.find("from UserStatus user where user.ref=?", userId);
+		String sql = "from AuthUserRole role where role.userStatusId=? and role.roleId=1";
+		List<AuthUserRole> authUserRole = menuManager.find(sql, userStatus.get(0).getId());
 		String hql = "from Menu where type<>'index' and display='true' and menu.id is null";
 		List<Menu> menus = menuManager.find(hql);
 		if (authUserRole.size() > 0) {
