@@ -16,7 +16,7 @@ public class TaskConfUserHumanTaskListener implements HumanTaskListener {
     private static Logger logger = LoggerFactory
             .getLogger(TaskConfUserHumanTaskListener.class);
     private TaskDefinitionConnector taskDefinitionConnector;
-    private TaskParticipantManager taskParticipantManager;
+   // private TaskParticipantManager taskParticipantManager;
 
     @Override
     public void onCreate(TaskInfo taskInfo) throws Exception {
@@ -44,9 +44,9 @@ public class TaskConfUserHumanTaskListener implements HumanTaskListener {
         this.taskDefinitionConnector = taskDefinitionConnector;
     }
 
-    @Resource
-    public void setTaskParticipantManager(
-            TaskParticipantManager taskParticipantManager) {
-        this.taskParticipantManager = taskParticipantManager;
-    }
+//    @Resource
+//    public void setTaskParticipantManager(
+//            TaskParticipantManager taskParticipantManager) {
+//        this.taskParticipantManager = taskParticipantManager;
+//    }
 }

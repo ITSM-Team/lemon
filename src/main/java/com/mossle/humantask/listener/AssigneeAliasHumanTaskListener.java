@@ -1,11 +1,16 @@
 package com.mossle.humantask.listener;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.mongodb.dao.task.TaskInfoMongoDao;
+import com.mongodb.dao.task.TaskParticipantMongoDao;
+import com.mossle.core.id.IdGenerator;
 import com.mossle.humantask.persistence.domain.TaskInfo;
 import com.mossle.humantask.persistence.domain.TaskParticipant;
 import com.mossle.humantask.persistence.manager.TaskParticipantManager;
@@ -22,6 +27,10 @@ import com.mossle.spi.process.InternalProcessConnector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
 /**
  * 处理负责人配置的别名.
@@ -30,8 +39,13 @@ public class AssigneeAliasHumanTaskListener implements HumanTaskListener {
     private static Logger logger = LoggerFactory
             .getLogger(AssigneeAliasHumanTaskListener.class);
     private InternalProcessConnector internalProcessConnector;
-    private TaskParticipantManager taskParticipantManager;
+    //private TaskParticipantManager taskParticipantManager;
     private Map<RuleMatcher, AssigneeRule> assigneeRuleMap = new HashMap<RuleMatcher, AssigneeRule>();
+    @Autowired
+    private TaskParticipantMongoDao taskParticipantMongoDao;
+    private IdGenerator idGenerator;
+    @Autowired
+    private TaskInfoMongoDao taskInfoMongoDao;
 
     public AssigneeAliasHumanTaskListener() {
         SuperiorAssigneeRule superiorAssigneeRule = new SuperiorAssigneeRule();
@@ -139,11 +153,16 @@ public class AssigneeAliasHumanTaskListener implements HumanTaskListener {
         } else {
             for (String userId : userIds) {
                 TaskParticipant taskParticipant = new TaskParticipant();
-                taskParticipant.setTaskInfo(taskInfo);
+
                 taskParticipant.setCategory("candidate");
                 taskParticipant.setType("user");
                 taskParticipant.setRef(userId);
-                taskParticipantManager.save(taskParticipant);
+                taskParticipant.setId(idGenerator.generateId());
+                taskParticipant.setTaskInfo(taskInfo);
+               // taskParticipantManager.save(taskParticipant);
+                taskParticipantMongoDao.save(taskParticipant);
+                              
+              
             }
         }
     }
@@ -153,10 +172,15 @@ public class AssigneeAliasHumanTaskListener implements HumanTaskListener {
             InternalProcessConnector internalProcessConnector) {
         this.internalProcessConnector = internalProcessConnector;
     }
-
+    
     @Resource
-    public void setTaskParticipantManager(
-            TaskParticipantManager taskParticipantMaanger) {
-        this.taskParticipantManager = taskParticipantManager;
-    }
+    public void setIdGenerator(IdGenerator idGenerator) {
+		this.idGenerator = idGenerator;
+	}
+
+//	@Resource
+//    public void setTaskParticipantManager(
+//            TaskParticipantManager taskParticipantMaanger) {
+//        this.taskParticipantManager = taskParticipantManager;
+//    }
 }

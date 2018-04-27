@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.xml.bind.annotation.W3CDomHandler;
 
 import com.mongodb.WriteResult;
+import com.mongodb.Util.MongodbQueryUtil;
 import com.mongodb.dao.form.PropMongodbDao;
 import com.mongodb.dao.form.RecordMongodbDao;
 import com.mossle.api.keyvalue.KeyValueConnector;
@@ -24,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -143,11 +147,11 @@ public class DatabaseKeyValueConnector implements KeyValueConnector {
      *xuan（新） 根据code删除记录.
      */
     public void removeByCode(String code) {    	
-/*        jdbcTemplate.update("DELETE FROM KV_PROP WHERE RECORD_ID=?", code);
+/*      jdbcTemplate.update("DELETE FROM KV_PROP WHERE RECORD_ID=?", code);
         jdbcTemplate.update("DELETE FROM KV_RECORD WHERE ID=?", code);*/
-        
-        propMongodbDao.remove(Query.query(Criteria.where("recordId").is(code))); 	
-        recordMongodbDao.remove(Query.query(Criteria.where("_id").is(code)));
+        Long id=Long.valueOf(code);
+        propMongodbDao.remove(Query.query(Criteria.where("recordId").is(id))); 	
+        recordMongodbDao.remove(Query.query(Criteria.where("_id").is(id)));
     }
 
     /**
@@ -415,7 +419,7 @@ public class DatabaseKeyValueConnector implements KeyValueConnector {
         for (Prop prop : record.getProps().values()) {
             // only append, won't delete
             if (resultRecord.getProps().containsKey(prop.getCode())) {
-            	WriteResult  w=propMongodbDao.update(Query.query(Criteria.where("recordId")
+            	propMongodbDao.update(Query.query(Criteria.where("recordId")
             			.is(Long.valueOf(record.getCode())).and("code")
             			.is(prop.getCode())),Update.update("type", prop.getType())
             			.set("value", prop.getValue()));
@@ -459,34 +463,46 @@ public class DatabaseKeyValueConnector implements KeyValueConnector {
 
     public long findTotalCount(String category, String tenantId,
             List<PropertyFilter> propertyFilters) {
-        String sqlPrefix = null;
-        List<Object> params = new ArrayList<Object>();
-
+//        String sqlPrefix = null;
+//        List<Object> params = new ArrayList<Object>();
+       
+        List<Criteria> criteriaList=new ArrayList<Criteria>();
+        Criteria criteria=new Criteria();
         if (propertyFilters.isEmpty()) {
-            sqlPrefix = "select count(*) from KV_RECORD r where r.CATEGORY=? and r.TENANT_ID=?";
+//            sqlPrefix = "select count(*) from KV_RECORD r where r.CATEGORY=? and r.TENANT_ID=?";
+
+            criteriaList.add(Criteria.where("category").is(category)
+            		.and("tenantId").is(tenantId));
         } else {
-            sqlPrefix = "select count(distinct r.ID) from KV_RECORD r";
+//            sqlPrefix = "select count(distinct r.ID) from KV_RECORD r";
 
             int index = 0;
 
             for (PropertyFilter propertyFilter : propertyFilters) {
-                String propName = "p" + (index++);
-                sqlPrefix += (" join KV_PROP " + propName + " on r.ID="
-                        + propName + ".RECORD_ID and " + propName
-                        + ".CODE=? and " + propName + ".VALUE like ?");
-                params.add(propertyFilter.getPropertyName());
-                params.add("%" + propertyFilter.getMatchValue() + "%");
+//                String propName = "p" + (index++);
+//                sqlPrefix += (" join KV_PROP " + propName + " on r.ID="
+//                        + propName + ".RECORD_ID and " + propName
+//                        + ".CODE=? and " + propName + ".VALUE like ?");
+//                params.add(propertyFilter.getPropertyName());
+//                params.add("%" + propertyFilter.getMatchValue() + "%");
+                
+                criteriaList.add(Criteria.where("props.code").is(propertyFilter.getPropertyName())
+                		.and("props.value").regex(propertyFilter.getMatchValue().toString())); 
             }
 
-            sqlPrefix += " where r.CATEGORY=? and r.TENANT_ID=?";
+//            sqlPrefix += " where r.CATEGORY=? and r.TENANT_ID=?";
+            criteriaList.add(Criteria.where("category").is(category)
+            		.and("tenantId").is(tenantId));
         }
-
-        params.add(category);
-        params.add(tenantId);
-
-        long totalCount = jdbcTemplate.queryForObject(sqlPrefix, Long.class,
-                params.toArray(new Object[0]));
-
+//
+//        params.add(category);
+//        params.add(tenantId);
+//
+//        long totalCount = jdbcTemplate.queryForObject(sqlPrefix, Long.class,
+//                params.toArray(new Object[0]));
+        Query query=new Query();
+        query.addCriteria(criteria.andOperator(criteriaList.toArray(new Criteria[criteriaList.size()])));
+        long totalCount=recordMongodbDao.count(query);
         return totalCount;
     }
 
@@ -497,6 +513,8 @@ public class DatabaseKeyValueConnector implements KeyValueConnector {
         List<Object> params = new ArrayList<Object>();
         Map<String, String> usedFieldMap = new HashMap<String, String>();
 
+        Query query=new Query();
+        List<Criteria> criteriaList=new ArrayList<Criteria>();
         if (propertyFilters.isEmpty()) {
             sqlPrefix = "select r.ID from KV_RECORD r";
         } else {
@@ -506,18 +524,20 @@ public class DatabaseKeyValueConnector implements KeyValueConnector {
 
             for (PropertyFilter propertyFilter : propertyFilters) {
                 String propName = "p" + index;
-                sqlPrefix += (" join KV_PROP " + propName + " on r.ID="
-                        + propName + ".RECORD_ID and " + propName
-                        + ".CODE=? and " + propName + ".VALUE like ?");
-                params.add(propertyFilter.getPropertyName());
-                params.add("%" + propertyFilter.getMatchValue() + "%");
-                usedFieldMap.put(propertyFilter.getPropertyName(), propName);
-                index++;
+//                sqlPrefix += (" join KV_PROP " + propName + " on r.ID="
+//                        + propName + ".RECORD_ID and " + propName
+//                        + ".CODE=? and " + propName + ".VALUE like ?");
+//                params.add(propertyFilter.getPropertyName());
+//                params.add("%" + propertyFilter.getMatchValue() + "%");
+                 usedFieldMap.put(propertyFilter.getPropertyName(), propName);
+//                index++;
+                criteriaList.add(Criteria.where("props.code").is(propertyFilter.getPropertyName())
+                		.and("props.value").regex(propertyFilter.getMatchValue().toString())); 
             }
         }
 
         String sqlOrder = null;
-
+        page.setOrderBy(tenantId);
         if (page.isOrderEnabled()) {
             String orderBy = page.getOrderBy();
             String order = page.getOrder();
@@ -525,12 +545,14 @@ public class DatabaseKeyValueConnector implements KeyValueConnector {
             if (usedFieldMap.containsKey(orderBy)) {
                 String propName = usedFieldMap.get(orderBy);
                 sqlOrder = " order by " + propName + ".VALUE " + order;
+               query.with(new Sort(new Order(MongodbQueryUtil.order(order),propName+".VALUE")));
             } else {
                 String propName = "p";
                 sqlPrefix += (" join KV_PROP " + propName + " on r.ID="
                         + propName + ".RECORD_ID and " + propName + ".CODE='"
                         + orderBy + "'");
                 sqlOrder = " order by " + propName + ".VALUE " + order;
+                criteriaList.add(Criteria.where(propName+".code").is(orderBy));
             }
         }
 

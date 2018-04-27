@@ -23,7 +23,10 @@ import com.mossle.cms.persistence.domain.CmsComment;
 import com.mossle.cms.persistence.manager.CmsArticleManager;
 import com.mossle.cms.persistence.manager.CmsAttachmentManager;
 import com.mossle.cms.persistence.manager.CmsCatalogManager;
+import com.mossle.cms.persistence.manager.CmsClickManager;
 import com.mossle.cms.persistence.manager.CmsCommentManager;
+import com.mossle.cms.persistence.manager.CmsFavoriteManager;
+import com.mossle.cms.persistence.manager.CmsTagArticleManager;
 import com.mossle.cms.service.RenderService;
 
 import com.mossle.core.auth.CurrentUserHolder;
@@ -65,6 +68,10 @@ public class CmsArticleController {
     private JsonMapper jsonMapper = new JsonMapper();
     private CurrentUserHolder currentUserHolder;
     private TenantHolder tenantHolder;
+    //新加
+    private CmsClickManager  cmsClickManager;
+    private CmsFavoriteManager cmsFavoriteManager;
+    private CmsTagArticleManager cmsTagArticleManager;
 
     /**
      * 文章列表.
@@ -160,6 +167,10 @@ public class CmsArticleController {
 
         for (CmsArticle cmsArticle : cmsArticles) {
             cmsCommentManager.removeAll(cmsArticle.getCmsComments());
+             cmsClickManager.removeAll(cmsArticle.getCmsClicks());
+             cmsFavoriteManager.removeAll(cmsArticle.getCmsFavorites());
+             cmsTagArticleManager.removeAll(cmsArticle.getCmsTagArticles());
+             cmsAttachmentManager.removeAll(cmsArticle.getCmsAttachments());
             cmsArticleManager.remove(cmsArticle);
         }
 
@@ -489,4 +500,22 @@ public class CmsArticleController {
     public void setTenantHolder(TenantHolder tenantHolder) {
         this.tenantHolder = tenantHolder;
     }
+
+    @Resource
+	public void setCmsClickManager(CmsClickManager cmsClickManager) {
+		this.cmsClickManager = cmsClickManager;
+	}
+
+    @Resource
+	public void setCmsFavoriteManager(CmsFavoriteManager cmsFavoriteManager) {
+		this.cmsFavoriteManager = cmsFavoriteManager;
+	}
+
+    @Resource
+    
+    
+	public void setCmsTagArticleManager(CmsTagArticleManager cmsTagArticleManager) {
+		this.cmsTagArticleManager = cmsTagArticleManager;
+	}
+    
 }

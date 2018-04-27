@@ -5,12 +5,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.annotation.Resource;
 
 import com.mongodb.dao.task.TaskDeadlineMongDao;
 import com.mongodb.dao.task.TaskInfoMongoDao;
+import com.mongodb.dao.task.TaskParticipantMongoDao;
 import com.mongodb.operation.OrderBy;
 import com.mossle.api.form.FormConnector;
 import com.mossle.api.form.FormDTO;
@@ -43,6 +47,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 
@@ -51,7 +56,7 @@ public class HumanTaskConnectorImpl implements HumanTaskConnector {
             .getLogger(HumanTaskConnectorImpl.class);
     private JdbcTemplate jdbcTemplate;
     private TaskInfoManager taskInfoManager;
-    private TaskParticipantManager taskParticipantManager;
+   // private TaskParticipantManager taskParticipantManager;
     private TaskConfUserManager taskConfUserManager;
    // private TaskDeadlineManager taskDeadlineManager;
     private InternalProcessConnector internalProcessConnector;
@@ -64,8 +69,8 @@ public class HumanTaskConnectorImpl implements HumanTaskConnector {
     private IdGenerator idGenerator;
     @Autowired
     private TaskDeadlineMongDao taskDeadlineMongDao;
-//    @Autowired
-//    private TaskParticipantMongoDao taskParticipantMongoDao;
+    @Autowired
+    private TaskParticipantMongoDao taskParticipantMongoDao;
 
     // ~
     /**
@@ -558,8 +563,8 @@ public class HumanTaskConnectorImpl implements HumanTaskConnector {
             int pageSize) {
         List<String> partyIds = new ArrayList<String>();
         partyIds.addAll(this.findGroupIds(userId));
-        partyIds.addAll(this.findUserIds(userId));
-
+        //partyIds.addAll(this.findUserIds(userId));
+        partyIds.add(userId);
         logger.debug("party ids : {}", partyIds);
 
 		if (partyIds.isEmpty()) {
@@ -572,12 +577,19 @@ public class HumanTaskConnectorImpl implements HumanTaskConnector {
 
 //        String hql = "select distinct t from TaskInfo t join t.taskParticipants p with p.ref in (:partyIds) where t.tenantId=:tenantId and t.assignee=null and t.status='active'";
 //        Page page = taskInfoManager.pagedQuery(hql, pageNo, pageSize, map);
-
+        //查询用户的所有代领任务
+       List<TaskParticipant> taskParticipants=taskParticipantMongoDao.find(
+    		   Query.query(Criteria.where("ref").in(partyIds)));
+       List<Long> idStrings=new ArrayList<Long>();
+       for (TaskParticipant taskParticipant : taskParticipants) {
+    	   idStrings.add(taskParticipant.getTaskInfo().getId());
+	}
+       //查询代领任务
         Query query=new Query();
-        query.addCriteria(Criteria.where("taskParticipants.ref").in(partyIds)
+        query.addCriteria(Criteria.where("_id").in(idStrings)
         		.and("tenantId").is(tenantId)
-        		.and("assignee").is(null)
-        		.and("status").is("active"));
+        		.and("status").is("active")
+        		.and("assignee").is(null));
         Page page=new Page();
         page.setPageNo(pageNo);
         page.setPageSize(pageSize);
@@ -972,10 +984,13 @@ public class HumanTaskConnectorImpl implements HumanTaskConnector {
         TaskParticipant taskParticipant = new TaskParticipant();
         taskParticipant.setRef(participantDto.getCode());
         taskParticipant.setType(participantDto.getType());
-        
+        //领取任务修改
         //taskParticipant.setTaskInfo(taskInfoManager.get(Long.valueOf(participantDto.getHumanTaskId())));
-        taskParticipant.setTaskInfo(taskInfoMongoDao.findById(Long.valueOf(participantDto.getHumanTaskId())));
-        taskParticipantManager.save(taskParticipant);
+       TaskInfo taskInfo=taskInfoMongoDao.findById(Long.valueOf(participantDto.getHumanTaskId()));
+        taskParticipant.setId(idGenerator.generateId());
+        taskParticipant.setTaskInfo(taskInfo);
+        //taskParticipantManager.save(taskParticipant);
+        taskParticipantMongoDao.save(taskParticipant);             
     }
 
     // ~ ==================================================
@@ -989,11 +1004,11 @@ public class HumanTaskConnectorImpl implements HumanTaskConnector {
         this.taskInfoManager = taskInfoManager;
     }
 
-    @Resource
-    public void setTaskParticipantManager(
-            TaskParticipantManager taskParticipantManager) {
-        this.taskParticipantManager = taskParticipantManager;
-    }
+//    @Resource
+//    public void setTaskParticipantManager(
+//            TaskParticipantManager taskParticipantManager) {
+//        this.taskParticipantManager = taskParticipantManager;
+//    }
 
     @Resource
     public void setTaskConfUserManager(TaskConfUserManager taskConfUserManager) {

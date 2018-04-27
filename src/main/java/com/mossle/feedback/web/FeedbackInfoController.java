@@ -1,5 +1,6 @@
 package com.mossle.feedback.web;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.mossle.api.tenant.TenantHolder;
-
+import com.mossle.core.auth.CurrentUserHolder;
 import com.mossle.core.export.Exportor;
 import com.mossle.core.export.TableModel;
 import com.mossle.core.mapper.BeanMapper;
@@ -38,6 +39,8 @@ public class FeedbackInfoController {
     private BeanMapper beanMapper = new BeanMapper();
     private MessageHelper messageHelper;
     private TenantHolder tenantHolder;
+    //添加修改人
+    private CurrentUserHolder currentUserHolder;
 
     @RequestMapping("feedback-info-list")
     public String list(@ModelAttribute Page page,
@@ -65,6 +68,7 @@ public class FeedbackInfoController {
     @RequestMapping("feedback-info-save")
     public String save(@ModelAttribute FeedbackInfo feedbackInfo,
             RedirectAttributes redirectAttributes) {
+        String userId = currentUserHolder.getUserId();
         String tenantId = tenantHolder.getTenantId();
         Long id = feedbackInfo.getId();
         FeedbackInfo dest = null;
@@ -74,6 +78,8 @@ public class FeedbackInfoController {
             beanMapper.copy(feedbackInfo, dest);
         } else {
             dest = feedbackInfo;
+            dest.setCreateTime(new Date());
+            dest.setUserId(userId);
         }
 
         feedbackInfoManager.save(dest);
@@ -135,4 +141,10 @@ public class FeedbackInfoController {
     public void setTenantHolder(TenantHolder tenantHolder) {
         this.tenantHolder = tenantHolder;
     }
+
+    @Resource
+	public void setCurrentUserHolder(CurrentUserHolder currentUserHolder) {
+		this.currentUserHolder = currentUserHolder;
+	}
+    
 }

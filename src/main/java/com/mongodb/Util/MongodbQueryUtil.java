@@ -9,6 +9,8 @@ import java.util.Map;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.loader.plan.exec.process.spi.ReturnReader;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
@@ -127,5 +129,22 @@ public class MongodbQueryUtil {
         criterionMap.put("and", andlist);
         criterionMap.put("or", orlist);
         return criterionMap;
+    }
+    
+    public static Direction order(String order)
+    {
+//    	Direction direction=null;
+//    	
+//    	switch (order) {
+//		case "asc":			
+//			direction=Direction.ASC;
+//		case "desc":
+//			direction=Direction.DESC;
+//		default:
+//			direction=Direction.ASC;
+//		}
+//		return direction;
+    	return null;
+    	
     }
 }
