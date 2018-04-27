@@ -45,7 +45,8 @@ $(function() {
     <div class="col-sm-5">
 	  <h5>local</h5>
 	  <c:forEach items="${roles}" var="item">
-        <input id="selectedItem-${item.id}" type="checkbox" name="selectedItem" value="${item.id}" <tags:contains items="${userRoleIds}" item="${item.id}">checked</tags:contains>>&nbsp;
+        <input id="selectedItem-${item.id}" type="checkbox" name="selectedItem" value="${item.id}" 
+        <tags:contains items="${userRoleIds}" item="${item.id}">checked</tags:contains>>&nbsp;
         <label for="selectedItem-${item.id}" style="display:inline;">${item.name}</label><br>
       </c:forEach>
     </div>

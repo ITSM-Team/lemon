@@ -1,7 +1,5 @@
 <%@page contentType="text/html;charset=UTF-8"%>
 <%@include file="/taglibs.jsp"%>
-<%pageContext.setAttribute("currentHeader", "feedback");%>
-<%pageContext.setAttribute("currentMenu", "feedback");%>
 <!doctype html>
 <html>
 
@@ -27,7 +25,7 @@ $(function() {
     <%@include file="/header/feedback.jsp"%>
 
     <div class="row-fluid">
-	  <%@include file="/menu/feedback.jsp"%>
+	  <%@include file="/menu/main-menu.jsp"%>
 
 	<!-- start of main -->
       <section id="m-main" class="col-md-10" style="padding-top:65px;">
