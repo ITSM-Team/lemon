@@ -540,5 +540,4 @@ public class CmsArticleController {
 	public void setCmsTagArticleManager(CmsTagArticleManager cmsTagArticleManager) {
 		this.cmsTagArticleManager = cmsTagArticleManager;
 	}
-
 }
