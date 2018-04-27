@@ -8,7 +8,7 @@
 <%@include file="/common/s3.jsp"%>
 
 <script src='${cdnPrefix}/portal/dashboard.js' type='text/javascript'></script>
-<%-- <link rel='stylesheet' href='${cdnPrefix}/portal/dashboard.css' type='text/css' media='screen' /> --%>
+<link rel='stylesheet' href='${cdnPrefix}/portal/dashboard.css' type='text/css' media='screen' />
 <script type="text/javascript" src="${cdnPrefix}/portal/portal.js"></script>
 </head>
 <body>
