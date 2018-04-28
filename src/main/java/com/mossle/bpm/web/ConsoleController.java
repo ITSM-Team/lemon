@@ -15,6 +15,7 @@ import com.mossle.bpm.cmd.ProcessDefinitionDiagramCmd;
 import com.mossle.bpm.cmd.ReOpenProcessCmd;
 import com.mossle.bpm.cmd.SyncProcessCmd;
 import com.mossle.bpm.cmd.UpdateProcessCmd;
+import com.mossle.bpm.persistence.domain.BpmConfAssign;
 import com.mossle.bpm.persistence.domain.BpmConfBase;
 import com.mossle.bpm.persistence.domain.BpmConfCountersign;
 import com.mossle.bpm.persistence.domain.BpmConfForm;
@@ -149,6 +150,11 @@ public class ConsoleController {
                        bpmConfBaseManager.remove(bpmConfUser);
                        // bpmConfBaseMongoService.remove(bpmConfUser.getId());
                     }
+                    
+                    //xuan 删除分配策略
+                    for (BpmConfAssign bpmConfAssign : bpmConfNode.getBpmConfAssigns()) {
+                    	bpmConfBaseManager.remove(bpmConfAssign);
+					}
 
                  bpmConfBaseManager.remove(bpmConfNode);
                  //  bpmConfBaseMongoService.remove(bpmConfNode.getId());

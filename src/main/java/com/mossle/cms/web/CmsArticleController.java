@@ -20,7 +20,10 @@ import com.mossle.cms.persistence.domain.CmsCatalog;
 import com.mossle.cms.persistence.manager.CmsArticleManager;
 import com.mossle.cms.persistence.manager.CmsAttachmentManager;
 import com.mossle.cms.persistence.manager.CmsCatalogManager;
+import com.mossle.cms.persistence.manager.CmsClickManager;
 import com.mossle.cms.persistence.manager.CmsCommentManager;
+import com.mossle.cms.persistence.manager.CmsFavoriteManager;
+import com.mossle.cms.persistence.manager.CmsTagArticleManager;
 import com.mossle.cms.service.RenderService;
 import com.mossle.core.auth.CurrentUserHolder;
 import com.mossle.core.export.Exportor;
@@ -62,6 +65,10 @@ public class CmsArticleController {
 	private TenantHolder tenantHolder;
 	HttpServletRequest request;
 	HttpSession session;
+    //新加
+    private CmsClickManager  cmsClickManager;
+    private CmsFavoriteManager cmsFavoriteManager;
+    private CmsTagArticleManager cmsTagArticleManager;
 
 	/**
 	 * 文章列表.
@@ -151,10 +158,15 @@ public class CmsArticleController {
 	public String remove(@RequestParam("selectedItem") List<Long> selectedItem, RedirectAttributes redirectAttributes) {
 		List<CmsArticle> cmsArticles = cmsArticleManager.findByIds(selectedItem);
 
-		for (CmsArticle cmsArticle : cmsArticles) {
-			cmsCommentManager.removeAll(cmsArticle.getCmsComments());
-			cmsArticleManager.remove(cmsArticle);
-		}
+
+        for (CmsArticle cmsArticle : cmsArticles) {
+            cmsCommentManager.removeAll(cmsArticle.getCmsComments());
+             cmsClickManager.removeAll(cmsArticle.getCmsClicks());
+             cmsFavoriteManager.removeAll(cmsArticle.getCmsFavorites());
+             cmsTagArticleManager.removeAll(cmsArticle.getCmsTagArticles());
+             cmsAttachmentManager.removeAll(cmsArticle.getCmsAttachments());
+            cmsArticleManager.remove(cmsArticle);
+        }
 
 		messageHelper.addFlashMessage(redirectAttributes, "core.success.delete", "删除成功");
 
@@ -534,8 +546,23 @@ public class CmsArticleController {
 		this.currentUserHolder = currentUserHolder;
 	}
 
-	@Resource
-	public void setTenantHolder(TenantHolder tenantHolder) {
-		this.tenantHolder = tenantHolder;
+    @Resource
+    public void setTenantHolder(TenantHolder tenantHolder) {
+        this.tenantHolder = tenantHolder;
+    }
+
+    @Resource
+	public void setCmsClickManager(CmsClickManager cmsClickManager) {
+		this.cmsClickManager = cmsClickManager;
+	}
+
+    @Resource
+	public void setCmsFavoriteManager(CmsFavoriteManager cmsFavoriteManager) {
+		this.cmsFavoriteManager = cmsFavoriteManager;
+	}
+
+    @Resource       
+	public void setCmsTagArticleManager(CmsTagArticleManager cmsTagArticleManager) {
+		this.cmsTagArticleManager = cmsTagArticleManager;
 	}
 }
