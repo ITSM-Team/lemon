@@ -95,7 +95,7 @@ $(function() {
 	    <td>${item.status}</td>
         <td>
           <a href="workspace-claimTask.do?taskId=${item.id}">认领</a>
-          <a href="workspace-viewHistory.do?processInstanceId=${item.processInstanceId}">历史</a>
+          <a href="${tenantPrefix}/bpm/workspace-viewHistory.do?processInstanceId=${item.processInstanceId}">历史</a>
         </td>
       </tr>
       </c:forEach>

@@ -2,6 +2,8 @@ package com.mossle.api.org;
 
 import java.util.List;
 
+import com.mossle.party.persistence.domain.PartyEntity;
+
 /**
  * 试验中的组织机构相关的connector.
  */
@@ -30,4 +32,14 @@ public interface OrgConnector {
      * 根据userId获得所有最近的部门或公司.
      */
     List<OrgDTO> getOrgsByUserId(String userId);
+    
+    /**
+	 * 根据userId获得对应的PartyEntity.
+	 */
+	 PartyEntity findUser(String userId);
+	 
+	/**
+	* 获得直接上级.
+	 */
+	 PartyEntity findSuperior(PartyEntity child);
 }
