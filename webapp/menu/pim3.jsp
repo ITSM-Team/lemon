@@ -27,7 +27,7 @@
         </ul>
       </div>
     </div>
-  </div>
+  </div>  --%>
 
   <div class="panel panel-default">
     <div class="panel-heading" role="tab" id="collapse-header-task" data-toggle="collapse" data-parent="#accordion" href="#collapse-body-task" aria-expanded="true" aria-controls="collapse-body-delegate">
@@ -45,6 +45,7 @@
     </div>
   </div>
 
+<%-- 
   <div class="panel panel-default">
     <div class="panel-heading" role="tab" id="collapse-header-msg" data-toggle="collapse" data-parent="#accordion" href="#collapse-body-msg" aria-expanded="true" aria-controls="collapse-body-msg">
       <h4 class="panel-title">
