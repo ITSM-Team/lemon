@@ -2,12 +2,11 @@
 <%@include file="/taglibs.jsp"%>
 <!doctype html>
 <html>
-
   <head>
     <%@include file="/common/meta.jsp"%>
     <title>编辑</title>
     <%@include file="/common/s3.jsp"%>
-    <script type="text/javascript">
+<script type="text/javascript">
 $(function() {
     $("#cms-article-imageForm").validate({
         submitHandler: function(form) {
@@ -28,7 +27,6 @@ $(function() {
     <noscript><link rel="stylesheet" href="${cdnPrefix}/jquery-file-upload/css/jquery.fileupload-noscript.css"></noscript>
     <noscript><link rel="stylesheet" href="${cdnPrefix}/jquery-file-upload/css/jquery.fileupload-ui-noscript.css"></noscript>
   </head>
-
   <body>
     <%@include file="/header/_bulletin_management.jsp"%>
 
@@ -48,9 +46,9 @@ $(function() {
 
 
 <form id="cmsArticleForm" method="post" action="cms-article-save.do" class="form-horizontal">
-  <c:if test="${model != null}">
+  <%-- <c:if test="${model != null}">
   <input id="cms-article_id" type="hidden" name="id" value="${model.id}">
-  </c:if>
+  </c:if> --%>
   <div class="form-group">
     <label class="control-label col-md-1" for="cms-article_cmsArticlename">栏目</label>
 	<div class="col-sm-5">
@@ -264,6 +262,7 @@ $(function() {
   </body>
   <script>
 $(function () {
+ 	//var id=$("#cms-article_id").val();
     'use strict';
 
     // Initialize the jQuery File Upload widget:
@@ -285,10 +284,9 @@ $(function () {
 
 	$('#cmsArticleForm').fileupload('option', {
 		// 启用图片大小调整，Android和Opera除外，实际上支持图片大小调整，但不能通过XHR请求发送Blob对象：
-		disableImageResize: /Android(?!.*Chrome)|Opera/
-			.test(window.navigator.userAgent),
+		disableImageResize: /Android(?!.*Chrome)|Opera/.test(window.navigator.userAgent),
 		maxFileSize: 10000000,
-		acceptFileTypes: /(\.|\/)(*)$/i
+		acceptFileTypes: /(\.|\/)*$/i
 	});
 
 	// 上传支持CORS的浏览器的服务器状态检查：
