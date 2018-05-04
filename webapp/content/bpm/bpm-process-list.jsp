@@ -97,7 +97,7 @@ $(function() {
         <tr>
           <th width="10" style="text-indent:0px;text-align:center;"><input type="checkbox" name="checkAll" onchange="toggleSelectedItems(this.checked)"></th>
           <th class="sorting" name="name">名称</th>
-          <th class="sorting" name="bpmCategory.id">分类</th>
+          <th class="sorting" name="bpmCategory.name">分类</th>
           <th class="sorting" name="priority">排序</th>
           <th class="sorting" name="useTaskConf">是否配置任务负责人</th>
           <th width="100">&nbsp;</th>

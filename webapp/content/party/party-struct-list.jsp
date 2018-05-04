@@ -118,7 +118,10 @@ $(function() {
           <td>${item.partyStructType.name}</td>
           <td>${item.parentEntity.name}</td>
           <td>${item.childEntity.name}</td>
-          <td>${item.partTime}</td>
+          <td>	
+          	<c:if test="${item.partTime==0}">全职</c:if>
+          	<c:if test="${item.partTime==1}">兼职</c:if>	
+          </td>
           <td>${item.link}</td>
           <td>${item.priority}</td>
           <td>${item.admin}</td>

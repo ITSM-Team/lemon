@@ -24,128 +24,117 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("bpm")
 public class BpmCategoryController {
-    private BpmCategoryManager bpmCategoryManager;
-    private MessageHelper messageHelper;
-    private Exportor exportor;
-    private TenantHolder tenantHolder;
-    private BeanMapper beanMapper = new BeanMapper();
-//   private IdGenerator idGenerator;
-//    @Autowired
-//    private BpmCategoryMongoService bpmCategoryMongoService;
+	private BpmCategoryManager bpmCategoryManager;
+	private MessageHelper messageHelper;
+	private Exportor exportor;
+	private TenantHolder tenantHolder;
+	private BeanMapper beanMapper = new BeanMapper();
+	// private IdGenerator idGenerator;
+	// @Autowired
+	// private BpmCategoryMongoService bpmCategoryMongoService;
 
-    @RequestMapping("bpm-category-list")
-    public String list(@ModelAttribute Page page,
-            @RequestParam Map<String, Object> parameterMap, Model model) {
-        String tenantId = tenantHolder.getTenantId();
-        List<PropertyFilter> propertyFilters = PropertyFilter
-                .buildFromMap(parameterMap);
-        propertyFilters.add(new PropertyFilter("EQS_tenantId", tenantId));
-        page = bpmCategoryManager.pagedQuery(page, propertyFilters);
-//        Query query=new Query();
-//        page=bpmCategoryMongoService.findPage(page, propertyFilters, query);
-        model.addAttribute("page", page);
+	@RequestMapping("bpm-category-list")
+	public String list(@ModelAttribute Page page, @RequestParam Map<String, Object> parameterMap, Model model) {
+		String tenantId = tenantHolder.getTenantId();
+		List<PropertyFilter> propertyFilters = PropertyFilter.buildFromMap(parameterMap);
+		propertyFilters.add(new PropertyFilter("EQS_tenantId", tenantId));
+		page = bpmCategoryManager.pagedQuery(page, propertyFilters);
+		// Query query=new Query();
+		// page=bpmCategoryMongoService.findPage(page, propertyFilters, query);
+		model.addAttribute("page", page);
 
-        return "bpm/bpm-category-list";
-    }
+		return "bpm/bpm-category-list";
+	}
 
-    @RequestMapping("bpm-category-input")
-    public String input(@RequestParam(value = "id", required = false) Long id,
-            Model model) {
-        if (id != null) {
-            BpmCategory bpmCategory = bpmCategoryManager.get(id);
-            //BpmCategory bpmCategory=bpmCategoryMongoService.findById(id);
-            model.addAttribute("model", bpmCategory);
-        }
+	@RequestMapping("bpm-category-input")
+	public String input(@RequestParam(value = "id", required = false) Long id, Model model) {
+		if (id != null) {
+			BpmCategory bpmCategory = bpmCategoryManager.get(id);
+			// BpmCategory bpmCategory=bpmCategoryMongoService.findById(id);
+			model.addAttribute("model", bpmCategory);
+		}
 
-        return "bpm/bpm-category-input";
-    }
+		return "bpm/bpm-category-input";
+	}
 
-    @RequestMapping("bpm-category-save")
-    public String save(@ModelAttribute BpmCategory bpmCategory,
-            RedirectAttributes redirectAttributes) {
-        BpmCategory dest = null;
-        Long id = bpmCategory.getId();
+	@RequestMapping("bpm-category-save")
+	public String save(@ModelAttribute BpmCategory bpmCategory, RedirectAttributes redirectAttributes) {
+		BpmCategory dest = null;
+		Long id = bpmCategory.getId();
 
-        if (id != null) {
-            dest = bpmCategoryManager.get(id);
-            //dest =  bpmCategoryMongoService.findById(id);
-            beanMapper.copy(bpmCategory, dest);
-           //bpmCategoryMongoService.update(dest);
-        } else {
-        	//id=idGenerator.generateId();
-            dest = bpmCategory;
-           // dest.setId(id);
-            String tenantId = tenantHolder.getTenantId();
-            dest.setTenantId(tenantId);
-            //bpmCategoryMongoService.save(dest);
-        }
+		if (id != null) {
+			dest = bpmCategoryManager.get(id);
+			// dest = bpmCategoryMongoService.findById(id);
+			beanMapper.copy(bpmCategory, dest);
+			// bpmCategoryMongoService.update(dest);
+		} else {
+			// id=idGenerator.generateId();
+			dest = bpmCategory;
+			// dest.setId(id);
+			String tenantId = tenantHolder.getTenantId();
+			dest.setTenantId(tenantId);
+			// bpmCategoryMongoService.save(dest);
+		}
 
-        bpmCategoryManager.save(dest);
-        
-        messageHelper.addFlashMessage(redirectAttributes, "core.success.save",
-                "保存成功");
+		bpmCategoryManager.save(dest);
 
-        return "redirect:/bpm/bpm-category-list.do";
-    }
+		messageHelper.addFlashMessage(redirectAttributes, "core.success.save", "保存成功");
 
-    @RequestMapping("bpm-category-remove")
-    public String remove(@RequestParam("selectedItem") List<Long> selectedItem,
-            RedirectAttributes redirectAttributes) {
-        List<BpmCategory> bpmCategories = bpmCategoryManager
-                .findByIds(selectedItem);
-        bpmCategoryManager.removeAll(bpmCategories);
-//        Query query=new Query();
-//        query.addCriteria(Criteria.where("_id").in(selectedItem));
-//        bpmCategoryMongoService.remove(query);
-        messageHelper.addFlashMessage(redirectAttributes,
-                "core.success.delete", "删除成功");
+		return "redirect:/bpm/bpm-category-list.do";
+	}
 
-        return "redirect:/bpm/bpm-category-list.do";
-    }
+	@RequestMapping("bpm-category-remove")
+	public String remove(@RequestParam("selectedItem") List<Long> selectedItem, RedirectAttributes redirectAttributes) {
+		List<BpmCategory> bpmCategories = bpmCategoryManager.findByIds(selectedItem);
+		bpmCategoryManager.removeAll(bpmCategories);
+		// Query query=new Query();
+		// query.addCriteria(Criteria.where("_id").in(selectedItem));
+		// bpmCategoryMongoService.remove(query);
+		messageHelper.addFlashMessage(redirectAttributes, "core.success.delete", "删除成功");
 
-    @RequestMapping("bpm-category-export")
-    public void export(@ModelAttribute Page page,
-            @RequestParam Map<String, Object> parameterMap,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        List<PropertyFilter> propertyFilters = PropertyFilter
-                .buildFromMap(parameterMap);
-        page = bpmCategoryManager.pagedQuery(page, propertyFilters);
-        
-//        Query query=new Query();
-//        page=bpmCategoryMongoService.findPage(page, propertyFilters, query);
-        List<BpmCategory> bpmCategories = (List<BpmCategory>) page.getResult();
-        TableModel tableModel = new TableModel();
-        tableModel.setName("bpm-category");
-        tableModel.addHeaders("id", "name");
-        tableModel.setData(bpmCategories);
-        exportor.export(request, response, tableModel);
-    }
+		return "redirect:/bpm/bpm-category-list.do";
+	}
 
-    // ~ ======================================================================
-    @Resource
-    public void setBpmCategoryManager(BpmCategoryManager bpmCategoryManager) {
-        this.bpmCategoryManager = bpmCategoryManager;
-    }
+	@RequestMapping("bpm-category-export")
+	public void export(@ModelAttribute Page page, @RequestParam Map<String, Object> parameterMap,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		List<PropertyFilter> propertyFilters = PropertyFilter.buildFromMap(parameterMap);
+		page = bpmCategoryManager.pagedQuery(page, propertyFilters);
 
-    @Resource
-    public void setMessageHelper(MessageHelper messageHelper) {
-        this.messageHelper = messageHelper;
-    }
+		// Query query=new Query();
+		// page=bpmCategoryMongoService.findPage(page, propertyFilters, query);
+		List<BpmCategory> bpmCategories = (List<BpmCategory>) page.getResult();
+		TableModel tableModel = new TableModel();
+		tableModel.setName("bpm-category");
+		tableModel.addHeaders("id", "name", "priority");
+		tableModel.setData(bpmCategories);
+		exportor.export(request, response, tableModel);
+	}
 
-    @Resource
-    public void setExportor(Exportor exportor) {
-        this.exportor = exportor;
-    }
+	// ~ ======================================================================
+	@Resource
+	public void setBpmCategoryManager(BpmCategoryManager bpmCategoryManager) {
+		this.bpmCategoryManager = bpmCategoryManager;
+	}
 
-    @Resource
-    public void setTenantHolder(TenantHolder tenantHolder) {
-        this.tenantHolder = tenantHolder;
-    }
-    
-//    @Resource
-//	public void setIdGenerator(IdGenerator idGenerator) {
-//		this.idGenerator = idGenerator;
-//	}
-    
+	@Resource
+	public void setMessageHelper(MessageHelper messageHelper) {
+		this.messageHelper = messageHelper;
+	}
+
+	@Resource
+	public void setExportor(Exportor exportor) {
+		this.exportor = exportor;
+	}
+
+	@Resource
+	public void setTenantHolder(TenantHolder tenantHolder) {
+		this.tenantHolder = tenantHolder;
+	}
+
+	// @Resource
+	// public void setIdGenerator(IdGenerator idGenerator) {
+	// this.idGenerator = idGenerator;
+	// }
+
 }

@@ -22,7 +22,7 @@ var config = {
     },
 	selectedItemClass: 'selectedItem',
 	gridFormId: 'feedback-catalogGridForm',
-	exportUrl: 'feedback-catalog-export.do'
+	exportUrl: 'feedback-info-export.do'
 };
 
 var table;
@@ -84,7 +84,7 @@ $(function() {
 	    <div class="clearfix"></div>
 	  </div>
 
-<form id="feedback-catalogGridForm" name="feedback-catalogGridForm" method='post' action="feedback-catalog-remove.do" class="m-form-blank">
+<form id="feedback-catalogGridForm" name="feedback-catalogGridForm" method='post' action="feedback-info-remove.do" class="m-form-blank">
       <div class="panel panel-default">
         <div class="panel-heading">
 		  <i class="glyphicon glyphicon-list"></i>
@@ -100,9 +100,9 @@ $(function() {
         <th class="sorting" name="id"><spring:message code="feedbackCatalog.feedbackCatalog.list.id" text="编号"/></th>
 		-->
         <th class="sorting" name="feedbackCatalogname">内容</th>
-        <th class="sorting" name="type">时间</th>
-        <th class="sorting" name="type">反馈人</th>
-        <th class="sorting" name="type">状态</th>
+        <th class="sorting" name="time">时间</th>
+        <th class="sorting" name="feedbackPerson">反馈人</th>
+        <th class="sorting" name="status">状态</th>
         <th width="80">&nbsp;</th>
       </tr>
     </thead>

@@ -1,7 +1,5 @@
 <%@page contentType="text/html;charset=UTF-8"%>
 <%@include file="/taglibs.jsp"%>
-<%pageContext.setAttribute("currentHeader", "bpm-console");%>
-<%pageContext.setAttribute("currentMenu", "bpm-category");%>
 <!doctype html>
 <html>
 
@@ -24,10 +22,10 @@ $(function() {
   </head>
 
   <body>
-    <%@include file="/header/bpm-console.jsp"%>
+    <%@include file="/header/_process_management.jsp"%>
 
     <div class="row-fluid">
-	  <%@include file="/menu/bpm-console.jsp"%>
+	  <%@include file="/menu/main-menu.jsp"%>
 
 	<!-- start of main -->
       <section id="m-main" class="col-md-10" style="padding-top:65px;">

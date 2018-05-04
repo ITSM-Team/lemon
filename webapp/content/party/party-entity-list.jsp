@@ -100,7 +100,7 @@ $(function() {
           <th class="sorting" name="type"><spring:message code="org.org.list.type" text="类型"/></th>
           <th class="sorting" name="name"><spring:message code="org.org.list.name" text="名称"/></th>
           <th class="sorting" name="level">级别</th>
-          <th class="sorting" name="ref">引用</th>
+          <th class="sorting" name="ref">用户ID</th>
           <th width="50">&nbsp;</th>
         </tr>
       </thead>

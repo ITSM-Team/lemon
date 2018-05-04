@@ -36,164 +36,155 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("auth")
 public class UserConnectorBatchController {
-    private static Logger logger = LoggerFactory
-            .getLogger(UserConnectorBatchController.class);
-    private UserStatusManager userStatusManager;
-    private MessageHelper messageHelper;
-    private UserStatusConverter userStatusConverter;
-    private TenantConnector tenantConnector;
-    private UserStatusChecker userStatusChecker;
-    private UserConnector userConnector;
-    private RoleManager roleManager;
-    private AuthService authService;
-    private TenantHolder tenantHolder;
+	private static Logger logger = LoggerFactory.getLogger(UserConnectorBatchController.class);
+	private UserStatusManager userStatusManager;
+	private MessageHelper messageHelper;
+	private UserStatusConverter userStatusConverter;
+	private TenantConnector tenantConnector;
+	private UserStatusChecker userStatusChecker;
+	private UserConnector userConnector;
+	private RoleManager roleManager;
+	private AuthService authService;
+	private TenantHolder tenantHolder;
 
-    @RequestMapping("user-connector-batch-list")
-    public String list() {
-        return "auth/user-connector-batch-list";
-    }
+	@RequestMapping("user-connector-batch-list")
+	public String list() {
+		return "auth/user-connector-batch-list";
+	}
 
-    @RequestMapping("user-connector-batch-input")
-    public String input(
-            @RequestParam(value = "userText", required = false) String userText,
-            Model model, RedirectAttributes redirectAttributes) {
-        if (userText != null) {
-            List<UserStatus> userStatuses = new ArrayList<UserStatus>();
+	@RequestMapping("user-connector-batch-input")
+	public String input(@RequestParam(value = "userText", required = false) String userText, Model model,
+			RedirectAttributes redirectAttributes) {
+		if (userText != null) {
+			List<UserStatus> userStatuses = new ArrayList<UserStatus>();
 
-            for (String str : userText.split("\n")) {
-                str = str.trim();
+			for (String str : userText.split("\n")) {
+				str = str.trim();
 
-                if (str.length() == 0) {
-                    continue;
-                }
+				if (str.length() == 0) {
+					continue;
+				}
 
-                String username = str;
-                UserDTO userDto = userConnector.findByUsername(username,
-                        tenantHolder.getUserRepoRef());
+				String username = str;
+				UserDTO userDto = userConnector.findByUsername(username, tenantHolder.getUserRepoRef());
 
-                if (userDto == null) {
-                    messageHelper.addMessage(model, str + " is not exists.");
-                    logger.info("{} is not exists", str);
-                } else {
-                    UserStatus userStatus = authService.createOrGetUserStatus(
-                            username, userDto.getId(),
-                            tenantHolder.getUserRepoRef(),
-                            tenantHolder.getTenantId());
+				if (userDto == null) {
+					messageHelper.addMessage(model, str + " is not exists.");
+					logger.info("{} is not exists", str);
+				} else {
+					UserStatus userStatus = authService.createOrGetUserStatus(username, userDto.getId(),
+							tenantHolder.getUserRepoRef(), tenantHolder.getTenantId());
 
-                    try {
-                        userStatusChecker.check(userStatus);
-                        userStatuses.add(userStatus);
-                    } catch (CheckUserStatusException ex) {
-                        logger.warn(ex.getMessage(), ex);
-                        messageHelper.addMessage(model, ex.getMessage());
-                    }
-                }
-            }
+					try {
+						userStatusChecker.check(userStatus);
+						userStatuses.add(userStatus);
+					} catch (CheckUserStatusException ex) {
+						logger.warn(ex.getMessage(), ex);
+						messageHelper.addMessage(model, ex.getMessage());
+					}
+				}
+			}
 
-            model.addAttribute("userStatuses", userStatuses);
-        }
+			model.addAttribute("userStatuses", userStatuses);
+		}
 
-        List<Role> roles = roleManager.find("from Role where tenantId=?",
-                tenantHolder.getTenantId());
-        List<RoleDTO> roleDtos = new ArrayList<RoleDTO>();
-        roleDtos.addAll(convertRoleDtos(roles, false));
-        model.addAttribute("roleDtos", roleDtos);
+		List<Role> roles = roleManager.find("from Role where tenantId=?", tenantHolder.getTenantId());
+		List<RoleDTO> roleDtos = new ArrayList<RoleDTO>();
+		roleDtos.addAll(convertRoleDtos(roles, false));
+		model.addAttribute("roleDtos", roleDtos);
 
-        // List<TenantInfo> sharedTenantInfos = tenantConnector.findSharedTenants();
+		// List<TenantInfo> sharedTenantInfos =
+		// tenantConnector.findSharedTenants();
 
-        // logger.info("{}", sharedTenantInfos);
+		// logger.info("{}", sharedTenantInfos);
 
-        // for (TenantInfo tenantInfo : sharedTenantInfos) {
-        // List<Role> sharedRoles = authService.findRoles(tenantInfo.getId());
-        // roleDtos.addAll(convertRoleDtos(sharedRoles, true));
-        // /}
-        return "auth/user-connector-batch-input";
-    }
+		// for (TenantInfo tenantInfo : sharedTenantInfos) {
+		// List<Role> sharedRoles = authService.findRoles(tenantInfo.getId());
+		// roleDtos.addAll(convertRoleDtos(sharedRoles, true));
+		// /}
+		return "auth/user-connector-batch-input";
+	}
 
-    @RequestMapping("user-connector-batch-save")
-    public String save(@RequestParam("userIds") List<Long> userIds,
-            @RequestParam("roleIds") List<Long> roleIds) {
-        logger.debug("userIds: {}, roleIds: {}", userIds, roleIds);
+	@RequestMapping("user-connector-batch-save")
+	public String save(@RequestParam("userIds") List<Long> userIds, @RequestParam("roleIds") List<Long> roleIds) {
+		logger.debug("userIds: {}, roleIds: {}", userIds, roleIds);
 
-        for (Long userId : userIds) {
-            authService.configUserRole(userId, roleIds,
-                    tenantHolder.getUserRepoRef(), tenantHolder.getTenantId(),
-                    false);
-        }
+		for (Long userId : userIds) {
+			authService.configUserRole(userId, roleIds, tenantHolder.getUserRepoRef(), tenantHolder.getTenantId(),
+					false);
+		}
 
-        return "redirect:/auth/user-connector-list.do";
-    }
+		return "redirect:/auth/user-connector-list.do";
+	}
 
-    public List<RoleDTO> convertRoleDtos(List<Role> roles, boolean useTenant) {
-        List<RoleDTO> roleDtos = new ArrayList<RoleDTO>();
+	public List<RoleDTO> convertRoleDtos(List<Role> roles, boolean useTenant) {
+		List<RoleDTO> roleDtos = new ArrayList<RoleDTO>();
 
-        for (Role role : roles) {
-            roleDtos.add(convertRoleDto(role, useTenant));
-        }
+		for (Role role : roles) {
+			roleDtos.add(convertRoleDto(role, useTenant));
+		}
 
-        return roleDtos;
-    }
+		return roleDtos;
+	}
 
-    public RoleDTO convertRoleDto(Role role, boolean useTenant) {
-        RoleDTO roleDto = new RoleDTO();
-        roleDto.setId(role.getId());
+	public RoleDTO convertRoleDto(Role role, boolean useTenant) {
+		RoleDTO roleDto = new RoleDTO();
+		roleDto.setId(role.getId());
 
-        if (useTenant) {
-            roleDto.setName(role.getName() + "("
-                    + tenantConnector.findById(role.getTenantId()).getName()
-                    + ")");
-        } else {
-            roleDto.setName(role.getName());
-        }
+		if (useTenant) {
+			roleDto.setName(role.getName() + "(" + tenantConnector.findById(role.getTenantId()).getName() + ")");
+		} else {
+			roleDto.setName(role.getName());
+		}
 
-        roleDto.setTenantId(role.getTenantId());
+		roleDto.setTenantId(role.getTenantId());
 
-        return roleDto;
-    }
+		return roleDto;
+	}
 
-    // ~ ======================================================================
-    @Resource
-    public void setUserStatusManager(UserStatusManager userStatusManager) {
-        this.userStatusManager = userStatusManager;
-    }
+	// ~ ======================================================================
+	@Resource
+	public void setUserStatusManager(UserStatusManager userStatusManager) {
+		this.userStatusManager = userStatusManager;
+	}
 
-    @Resource
-    public void setMessageHelper(MessageHelper messageHelper) {
-        this.messageHelper = messageHelper;
-    }
+	@Resource
+	public void setMessageHelper(MessageHelper messageHelper) {
+		this.messageHelper = messageHelper;
+	}
 
-    @Resource
-    public void setUserStatusConverter(UserStatusConverter userStatusConverter) {
-        this.userStatusConverter = userStatusConverter;
-    }
+	@Resource
+	public void setUserStatusConverter(UserStatusConverter userStatusConverter) {
+		this.userStatusConverter = userStatusConverter;
+	}
 
-    @Resource
-    public void setRoleManager(RoleManager roleManager) {
-        this.roleManager = roleManager;
-    }
+	@Resource
+	public void setRoleManager(RoleManager roleManager) {
+		this.roleManager = roleManager;
+	}
 
-    @Resource
-    public void setUserStatusChecker(UserStatusChecker userStatusChecker) {
-        this.userStatusChecker = userStatusChecker;
-    }
+	@Resource
+	public void setUserStatusChecker(UserStatusChecker userStatusChecker) {
+		this.userStatusChecker = userStatusChecker;
+	}
 
-    @Resource
-    public void setUserConnector(UserConnector userConnector) {
-        this.userConnector = userConnector;
-    }
+	@Resource
+	public void setUserConnector(UserConnector userConnector) {
+		this.userConnector = userConnector;
+	}
 
-    @Resource
-    public void setTenantConnector(TenantConnector tenantConnector) {
-        this.tenantConnector = tenantConnector;
-    }
+	@Resource
+	public void setTenantConnector(TenantConnector tenantConnector) {
+		this.tenantConnector = tenantConnector;
+	}
 
-    @Resource
-    public void setAuthService(AuthService authService) {
-        this.authService = authService;
-    }
+	@Resource
+	public void setAuthService(AuthService authService) {
+		this.authService = authService;
+	}
 
-    @Resource
-    public void setTenantHolder(TenantHolder tenantHolder) {
-        this.tenantHolder = tenantHolder;
-    }
+	@Resource
+	public void setTenantHolder(TenantHolder tenantHolder) {
+		this.tenantHolder = tenantHolder;
+	}
 }

@@ -39,7 +39,9 @@
 						<li class="divider"></li>
 						<li><a href="${tenantPrefix}/j_spring_security_logout"><i class="glyphicon glyphicon-list"></i> 退出</a></li>
 					</ul></li>
-				<li><a href="${tenantPrefix}/pim/address-list-list.do""> <i class="glyphicon glyphicon-bell"></i> <i id="unreadMsg" class="badge"></i>
+				<li><a href="${tenantPrefix}/pim/pim-task-index.do""> <i class="glyphicon glyphicon-bell"></i> 
+				<!-- 隐藏消息提示框 -->
+				<!-- <i id="unreadMsg" class="badge"></i> -->
 				</a></li>
 				<!-- 隐藏添加面板入口 -->
 				<li>

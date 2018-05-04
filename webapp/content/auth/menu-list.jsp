@@ -101,11 +101,11 @@ $(function() {
 		  <!--
           <th class="sorting" name="id"><spring:message code="auth.menu.list.id" text="编号"/></th>
 		  -->
-		  <th>编码</th>
+		  <th class="sorting" name="code">编码</th>
           <th class="sorting" name="name"><spring:message code="auth.menu.list.name" text="名称"/></th>
-          <th class="sorting" name="name">URL</th>
-		  <th>类型</th>
-		  <th>状态</th>
+          <th class="sorting" name="url">URL</th>
+		  <th class="sorting" name="type">类型</th>
+		  <th class="sorting" name="status">状态</th>
           <th>&nbsp;</th>
         </tr>
       </thead>

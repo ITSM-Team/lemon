@@ -33,134 +33,123 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("auth")
 public class MenuController {
-    private MenuManager menuManager;
-    private PermManager permManager;
-    private MessageHelper messageHelper;
-    private Exportor exportor;
-    private BeanMapper beanMapper = new BeanMapper();
-    private MenuCache menuCache;
+	private MenuManager menuManager;
+	private PermManager permManager;
+	private MessageHelper messageHelper;
+	private Exportor exportor;
+	private BeanMapper beanMapper = new BeanMapper();
+	private MenuCache menuCache;
 
-    @RequestMapping("menu-list")
-    public String list(@ModelAttribute Page page,
-            @RequestParam Map<String, Object> parameterMap, Model model) {
-        List<PropertyFilter> propertyFilters = PropertyFilter
-                .buildFromMap(parameterMap);
-        page = menuManager.pagedQuery(page, propertyFilters);
+	@RequestMapping("menu-list")
+	public String list(@ModelAttribute Page page, @RequestParam Map<String, Object> parameterMap, Model model) {
+		List<PropertyFilter> propertyFilters = PropertyFilter.buildFromMap(parameterMap);
+		page = menuManager.pagedQuery(page, propertyFilters);
 
-        model.addAttribute("page", page);
+		model.addAttribute("page", page);
 
-        return "auth/menu-list";
-    }
+		return "auth/menu-list";
+	}
 
-    @RequestMapping("menu-input")
-    public String input(@RequestParam(value = "id", required = false) Long id,
-            Model model) {
-        if (id != null) {
-            Menu menu = menuManager.get(id);
-            model.addAttribute("model", menu);
+	@RequestMapping("menu-input")
+	public String input(@RequestParam(value = "id", required = false) Long id, Model model) {
+		if (id != null) {
+			Menu menu = menuManager.get(id);
+			model.addAttribute("model", menu);
 
-            String hql = "from Menu where menu.id!=?";
-            List<Menu> menus = this.menuManager.find(hql, id);
-            model.addAttribute("menus", menus);
-        } else {
-            List<Menu> menus = this.menuManager.getAll();
-            model.addAttribute("menus", menus);
-        }
+			String hql = "from Menu where menu.id!=?";
+			List<Menu> menus = this.menuManager.find(hql, id);
+			model.addAttribute("menus", menus);
+		} else {
+			List<Menu> menus = this.menuManager.getAll();
+			model.addAttribute("menus", menus);
+		}
 
-        List<Perm> perms = this.permManager.getAll();
-        model.addAttribute("perms", perms);
+		List<Perm> perms = this.permManager.getAll();
+		model.addAttribute("perms", perms);
 
-        return "auth/menu-input";
-    }
+		return "auth/menu-input";
+	}
 
-    @RequestMapping("menu-save")
-    public String save(@ModelAttribute Menu menu,
-            @RequestParam(value = "parentId", required = false) Long parentId,
-            @RequestParam(value = "permId", required = false) Long permId,
-            RedirectAttributes redirectAttributes) {
-        Menu dest = null;
-        Long id = menu.getId();
+	@RequestMapping("menu-save")
+	public String save(@ModelAttribute Menu menu, @RequestParam(value = "parentId", required = false) Long parentId,
+			@RequestParam(value = "permId", required = false) Long permId, RedirectAttributes redirectAttributes) {
+		Menu dest = null;
+		Long id = menu.getId();
 
-        if (id != null) {
-            dest = menuManager.get(id);
-            beanMapper.copy(menu, dest);
-        } else {
-            dest = menu;
-        }
+		if (id != null) {
+			dest = menuManager.get(id);
+			beanMapper.copy(menu, dest);
+		} else {
+			dest = menu;
+		}
 
-        if (parentId != null) {
-            dest.setMenu(menuManager.get(parentId));
-        } else {
-            dest.setMenu(null);
-        }
+		if (parentId != null) {
+			dest.setMenu(menuManager.get(parentId));
+		} else {
+			dest.setMenu(null);
+		}
 
-        if (permId != null) {
-            dest.setPerm(permManager.get(permId));
-        } else {
-            dest.setPerm(null);
-        }
+		if (permId != null) {
+			dest.setPerm(permManager.get(permId));
+		} else {
+			dest.setPerm(null);
+		}
 
-        menuManager.save(dest);
+		menuManager.save(dest);
 
-        messageHelper.addFlashMessage(redirectAttributes, "core.success.save",
-                "保存成功");
-        this.menuCache.clear();
+		messageHelper.addFlashMessage(redirectAttributes, "core.success.save", "保存成功");
+		this.menuCache.clear();
 
-        return "redirect:/auth/menu-list.do";
-    }
+		return "redirect:/auth/menu-list.do";
+	}
 
-    @RequestMapping("menu-remove")
-    public String remove(@RequestParam("selectedItem") List<Long> selectedItem,
-            RedirectAttributes redirectAttributes) {
-        List<Menu> menus = menuManager.findByIds(selectedItem);
-        menuManager.removeAll(menus);
-        messageHelper.addFlashMessage(redirectAttributes, "core.delete.save",
-                "删除成功");
-        this.menuCache.clear();
+	@RequestMapping("menu-remove")
+	public String remove(@RequestParam("selectedItem") List<Long> selectedItem, RedirectAttributes redirectAttributes) {
+		List<Menu> menus = menuManager.findByIds(selectedItem);
+		menuManager.removeAll(menus);
+		messageHelper.addFlashMessage(redirectAttributes, "core.delete.save", "删除成功");
+		this.menuCache.clear();
 
-        return "redirect:/auth/menu-list.do";
-    }
+		return "redirect:/auth/menu-list.do";
+	}
 
-    @RequestMapping("menu-export")
-    public void export(@ModelAttribute Page page,
-            @RequestParam Map<String, Object> parameterMap,
-            HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        List<PropertyFilter> propertyFilters = PropertyFilter
-                .buildFromMap(parameterMap);
-        page = menuManager.pagedQuery(page, propertyFilters);
+	@RequestMapping("menu-export")
+	public void export(@ModelAttribute Page page, @RequestParam Map<String, Object> parameterMap,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		List<PropertyFilter> propertyFilters = PropertyFilter.buildFromMap(parameterMap);
+		page = menuManager.pagedQuery(page, propertyFilters);
 
-        List<Menu> menus = (List<Menu>) page.getResult();
-        TableModel tableModel = new TableModel();
-        tableModel.setName("menu");
-        tableModel.addHeaders("id", "name");
-        tableModel.setData(menus);
-        exportor.export(request, response, tableModel);
-    }
+		List<Menu> menus = (List<Menu>) page.getResult();
+		TableModel tableModel = new TableModel();
+		tableModel.setName("menu");
+		tableModel.addHeaders("code", "name", "url", "type", "status");
+		tableModel.setData(menus);
+		exportor.export(request, response, tableModel);
+	}
 
-    // ~ ======================================================================
-    @Resource
-    public void setMenuManager(MenuManager menuManager) {
-        this.menuManager = menuManager;
-    }
+	// ~ ======================================================================
+	@Resource
+	public void setMenuManager(MenuManager menuManager) {
+		this.menuManager = menuManager;
+	}
 
-    @Resource
-    public void setPermManager(PermManager permManager) {
-        this.permManager = permManager;
-    }
+	@Resource
+	public void setPermManager(PermManager permManager) {
+		this.permManager = permManager;
+	}
 
-    @Resource
-    public void setMessageHelper(MessageHelper messageHelper) {
-        this.messageHelper = messageHelper;
-    }
+	@Resource
+	public void setMessageHelper(MessageHelper messageHelper) {
+		this.messageHelper = messageHelper;
+	}
 
-    @Resource
-    public void setExportor(Exportor exportor) {
-        this.exportor = exportor;
-    }
+	@Resource
+	public void setExportor(Exportor exportor) {
+		this.exportor = exportor;
+	}
 
-    @Resource
-    public void setMenuCache(MenuCache menuCache) {
-        this.menuCache = menuCache;
-    }
+	@Resource
+	public void setMenuCache(MenuCache menuCache) {
+		this.menuCache = menuCache;
+	}
 }

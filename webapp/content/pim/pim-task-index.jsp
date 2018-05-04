@@ -60,49 +60,7 @@ function removeTask(id) {
     <%@include file="/header/pim3.jsp"%>
 
     <div class="row-fluid">
-<div class="panel-group col-md-2" id="accordion" role="tablist" aria-multiselectable="true" style="padding-top:65px;">
-
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="collapse-header-schedule" data-toggle="collapse" data-parent="#accordion" href="#collapse-body-schedule" aria-expanded="true" aria-controls="collapse-body-delegate">
-      <h4 class="panel-title">
-        <i class="glyphicon glyphicon-list"></i>
-        个人任务
-      </h4>
-    </div>
-    <div id="collapse-body-schedule" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="collapse-header-schedule">
-      <div class="panel-body">
-        <ul class="nav nav-list">
-          <li><a href="${tenantPrefix}/pim/pim-task-index.do"><i class="glyphicon glyphicon-list"></i> 最近任务</a></li>
-		  <!--
-          <li><a href="${tenantPrefix}/pim/pim-task-index.do"><i class="glyphicon glyphicon-list"></i> 所有任务</a></li>
-		  -->
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!--
-  <div class="panel panel-default">
-    <div class="panel-heading" role="tab" id="collapse-header-schedule" data-toggle="collapse" data-parent="#accordion" href="#collapse-body-schedule" aria-expanded="true" aria-controls="collapse-body-delegate">
-      <h4 class="panel-title">
-        <i class="glyphicon glyphicon-list"></i>
-        分类
-      </h4>
-    </div>
-    <div id="collapse-body-schedule" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="collapse-header-schedule">
-      <div class="panel-body">
-        <ul class="nav nav-list">
-          <li><a href="${tenantPrefix}/pim/pim-task-index.do"><i class="glyphicon glyphicon-list"></i> 工作</a></li>
-          <li><a href="${tenantPrefix}/pim/pim-task-index.do"><i class="glyphicon glyphicon-list"></i> 学习</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-  -->
-
-</div>
-
-      <!-- start of main -->
+    <%@include file="/menu/pim3.jsp"%>
       <section id="m-main" class="col-md-10" style="padding-top:65px;">
 
       <div style="margin-bottom: 20px;">
