@@ -1,11 +1,18 @@
 package com.mossle.bpm.support;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import com.mongodb.Util.DOM4JUtil;
+import com.mongodb.util.JSON;
 import com.mossle.api.form.FormDTO;
 
 import com.mossle.bpm.cmd.CompleteTaskWithCommentCmd;
@@ -14,11 +21,15 @@ import com.mossle.bpm.cmd.FindTaskDefinitionsCmd;
 import com.mossle.bpm.cmd.RollbackTaskCmd;
 import com.mossle.bpm.cmd.SignalStartEventCmd;
 import com.mossle.bpm.cmd.WithdrawTaskCmd;
+import com.mossle.bpm.persistence.domain.BpmConfBase;
 import com.mossle.bpm.persistence.domain.BpmConfForm;
+import com.mossle.bpm.persistence.domain.BpmConfNode;
 import com.mossle.bpm.persistence.domain.BpmConfOperation;
 import com.mossle.bpm.persistence.domain.BpmConfUser;
 import com.mossle.bpm.persistence.domain.BpmTaskConf;
+import com.mossle.bpm.persistence.manager.BpmConfBaseManager;
 import com.mossle.bpm.persistence.manager.BpmConfFormManager;
+import com.mossle.bpm.persistence.manager.BpmConfNodeManager;
 import com.mossle.bpm.persistence.manager.BpmConfOperationManager;
 import com.mossle.bpm.persistence.manager.BpmConfUserManager;
 import com.mossle.bpm.persistence.manager.BpmTaskConfManager;
@@ -26,8 +37,11 @@ import com.mossle.bpm.persistence.manager.BpmTaskConfManager;
 import com.mossle.spi.process.InternalProcessConnector;
 import com.mossle.spi.process.ProcessTaskDefinition;
 
+import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.bpmn.model.FlowElement;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.RepositoryService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.impl.cmd.GetDeploymentProcessDefinitionCmd;
 import org.activiti.engine.impl.context.Context;
@@ -39,8 +53,11 @@ import org.activiti.engine.impl.pvm.PvmActivity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.task.TaskDefinition;
+import org.activiti.engine.impl.util.json.JSONString;
+import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.task.Task;
-
+import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +77,10 @@ public class ActivitiInternalProcessConnector implements
     private BpmTaskConfManager bpmTaskConfManager;
     private BpmConfUserManager bpmConfUserManager;
     private JdbcTemplate jdbcTemplate;
+    //xuan 根据流程定义ID查询 bpm_conf里的配置信息
+    private BpmConfBaseManager bpmConfBaseManager;
+    //获得流程任务节点信息
+    private BpmConfNodeManager bpmConfNodeManager;
 
     /**
      * 获得任务表单，不包含表单内容.
@@ -156,6 +177,14 @@ public class ActivitiInternalProcessConnector implements
         TaskService taskService = processEngine.getTaskService();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
 
+        /**
+         * 设置直接完成条件变量值
+         * */
+    	if(variables==null || variables.size()<=0){
+    		variables=DOM4JUtil.completemission(taskId);
+    	}
+
+            
         if (task == null) {
             throw new IllegalStateException("任务不存在");
         }
@@ -437,4 +466,10 @@ public class ActivitiInternalProcessConnector implements
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
+
+    @Resource
+	public void setBpmConfBaseManager(BpmConfBaseManager bpmConfBaseManager) {
+		this.bpmConfBaseManager = bpmConfBaseManager;
+	}
+    
 }

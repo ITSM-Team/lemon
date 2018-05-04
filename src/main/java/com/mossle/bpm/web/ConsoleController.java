@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+
+import com.mongodb.Util.DOM4JUtil;
 import com.mossle.api.process.ProcessConnector;
 import com.mossle.api.tenant.TenantHolder;
 import com.mossle.bpm.cmd.ChangeSubTaskCmd;
@@ -551,8 +553,8 @@ public class ConsoleController {
      */
     @RequestMapping("console-completeTask")
     public String completeTask(@RequestParam("taskId") String taskId) {
-        processEngine.getTaskService().complete(taskId);
-
+    	Map<String,Object> map=DOM4JUtil.completemission(taskId);
+        processEngine.getTaskService().complete(taskId,map);
         return "redirect:/bpm/console-listTasks.do";
     }
 
